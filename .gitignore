@@ -1,0 +1,54 @@
+# Agenix / secrets
+# Ignore all regular files under `secrets/` but allow encrypted `.age`
+# files and `secrets.nix`. We must also allow directories so git can
+# traverse into subfolders to reach allowed files.
+secrets/*
+!secrets/**/
+!secrets/**/*.age
+!secrets/*.age
+!secrets/secrets.nix
+!*.age
+
+# Nix / build artifacts
+# `nix build` commonly creates a `result` symlink; keep variants covered.
+result/
+result-*/
+*.drv
+*.nar
+core.*
+
+# nix & tooling caches
+.nix-*    # some tools create .nix-* temporary dirs
+.direnv/
+
+# Treefmt cache
+.treefmt-cache/
+
+# Editors / IDEs
+.idea/
+*.swp
+*.swo
+*~
+.project
+
+# Python
+__pycache__/
+*.py[cod]
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs / temp
+*.log
+tmp/
+*.tmp
+
+# Common env files (often contain secrets; keep out of VCS)
+.env
+.env.local
+.env.*.local
+
+# Misc
+.cache/
+.pre-commit-config.yaml
