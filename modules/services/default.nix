@@ -6,6 +6,7 @@
     ./nginx.nix
     ./grafana.nix
     ../helper/jail.nix
+    ./glanceapp.nix
   ];
 
   systemd.tmpfiles.rules = [
