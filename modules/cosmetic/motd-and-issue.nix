@@ -5,7 +5,7 @@
 }:
 
 let
-  width = 70;
+  width = 100;
   font = "slant"; # try: "small", "mini", "banner", "lean"
   rule = lib.concatStrings (lib.replicate width "=");
 
