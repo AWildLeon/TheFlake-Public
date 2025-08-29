@@ -4,5 +4,6 @@
     jetbrains-toolbox
     nil
     nodejs
+    gitkraken
   ];
 }
