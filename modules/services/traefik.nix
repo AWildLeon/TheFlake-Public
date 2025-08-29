@@ -1,4 +1,4 @@
-{ lib, config, pkgsUnstable, ... }:
+{ lib, config, options, pkgsUnstable, ... }:
 with lib;
 let
 
@@ -102,8 +102,8 @@ in
         default = [ ];
       };
       dataDir = mkOption {
-        type = types.path;
-        default = "/docker/traefik/data/traefik";
+        type = types.nullOr (types.path);
+        default = null;
       };
       dynamicConfig = mkOption {
         type = types.attrs;
@@ -130,7 +130,30 @@ in
     };
   };
 
-  config = mkIf cfg.enable {
+  config =
+    let
+      haveImpermanence = options ? environment && options.environment ? persistence;
+      persistenceDef =
+        if haveImpermanence then {
+          environment.persistence."/persistent".directories = [
+            {
+              directory = "/var/lib/traefik";
+              user = "traefik";
+              group = "traefik";
+              mode = "u=rwx,g=,o=";
+            }
+          ] ++ optionals (cfg.dataDir != null) [
+            {
+              directory = cfg.dataDir;
+              user = "traefik";
+              group = "traefik";
+              mode = "u=rwx,g=,o=";
+            }
+          ];
+        } else { };
+    in
+    mkIf cfg.enable (
+      persistenceDef // {
 
     users.users.traefik = {
       isSystemUser = true;
@@ -197,7 +220,6 @@ in
             };
           };
         dynamicConfigOptions = cfg.dynamicConfig;
-        inherit (cfg) dataDir;
         inherit (cfg) environmentFiles;
       };
       dynamicConfigOptions = cfg.dynamicConfig;
@@ -262,6 +284,7 @@ in
         ];
         BindPaths = [
           "/var/lib/traefik:/var/lib/traefik"
+        ] ++ optionals (cfg.dataDir != null) [
           "${cfg.dataDir}:${cfg.dataDir}"
         ];
       };
@@ -271,9 +294,11 @@ in
       serviceName = "traefik";
       user = "traefik";
       group = "traefik";
-      dataPaths = [ cfg.dataDir ];
+      dataPaths = optionals (cfg.dataDir != null) [
+          "${cfg.dataDir}:${cfg.dataDir}"
+        ];
     };
-
+    
     systemd.services.haproxy = mkIf
       ((config.virtualisation.docker.enable
         || config.virtualisation.podman.enable) && cfg.enable)
@@ -352,5 +377,6 @@ in
     networking.firewall.allowedTCPPorts = [ 80 443 ];
 
     networking.firewall.allowedUDPPorts = [ 443 ];
-  };
+      }
+    );
 }
