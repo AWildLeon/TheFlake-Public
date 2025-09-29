@@ -1,0 +1,14 @@
+#!/usr/bin/env nix-shell
+#! nix-shell -i bash -p ipmiutil
+# shellcheck shell=bash
+
+read -r -p "Enter IPMI host: " HOST
+read -r -p "Enter IPMI user: " USER
+read -r -s -p "Enter IPMI password: " IPMI_PASSWORD
+echo
+
+export IPMI_PASSWORD
+echo "Starting SOL session to $HOST..."
+echo "Connection may take a few seconds... (Wait for a SOL Session Running message)"
+
+ipmiutil sol -a -N "$HOST" -c'^' -U "$USER" -E

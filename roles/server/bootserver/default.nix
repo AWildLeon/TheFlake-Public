@@ -1,0 +1,14 @@
+{ lib, ... }: {
+  imports = [ ../base.nix ];
+
+  # Enable bootserver service
+  lh.services.bootserver = {
+    enable = lib.mkDefault true;
+    proxyDhcp.enable = true;
+    tftp.enable = false; # Use dnsmasq TFTP
+    php.enable = true;
+
+    # Basic configuration
+    domain = lib.mkDefault "bootserver.internal";
+  };
+}

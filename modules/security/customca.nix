@@ -1,0 +1,66 @@
+{ lib, config, pkgs, ... }:
+
+with lib;
+
+let
+  cfg = config.lh.security.customca;
+
+  lhTrustRootCA = pkgs.writeText "lh-trust-root-ca.pem" ''
+    -----BEGIN CERTIFICATE-----
+    MIIBnzCCAUWgAwIBAgIQUHsJC5wrIR+AE0VBa8hotjAKBggqhkjOPQQDAjAuMREw
+    DwYDVQQKEwhMSC1UcnVzdDEZMBcGA1UEAxMQTEgtVHJ1c3QgUm9vdCBDQTAeFw0y
+    NTAyMTYwMTU5NDdaFw0zNTAyMTQwMTU5NDdaMC4xETAPBgNVBAoTCExILVRydXN0
+    MRkwFwYDVQQDExBMSC1UcnVzdCBSb290IENBMFkwEwYHKoZIzj0CAQYIKoZIzj0D
+    AQcDQgAEiSkIKaPhSaviWMU5HMCVpaxeaWjM8V7sJavaiMMJGki26qaJdnfgAKiH
+    R4VZWoDb6shSUyZDuH3mpBOGTBwTzqNFMEMwDgYDVR0PAQH/BAQDAgEGMBIGA1Ud
+    EwEB/wQIMAYBAf8CAQEwHQYDVR0OBBYEFBejZGzZLZ+Ti12AGkBnOxADp9tXMAoG
+    CCqGSM49BAMCA0gAMEUCIQCMqUahqcivbf8+DSdi8DcVF592EkEFKzDvp2WpB3bM
+    AAIgJyhT/FIItPL+MNzE3UY6v0hymfZu6747Fto5FLwpXm0=
+    -----END CERTIFICATE-----
+  '';
+
+  lhTrustIntermediateCA = pkgs.writeText "lh-trust-intermediate-ca.pem" ''
+    -----BEGIN CERTIFICATE-----
+    MIIByTCCAW+gAwIBAgIRAK2BzY6o+qREsxfxqyqsY4cwCgYIKoZIzj0EAwIwLjER
+    MA8GA1UEChMITEgtVHJ1c3QxGTAXBgNVBAMTEExILVRydXN0IFJvb3QgQ0EwHhcN
+    MjUwMjE2MDE1OTQ4WhcNMzUwMjE0MDE1OTQ4WjA2MREwDwYDVQQKEwhMSC1UcnVz
+    dDEhMB8GA1UEAxMYTEgtVHJ1c3QgSW50ZXJtZWRpYXRlIENBMFkwEwYHKoZIzj0C
+    AQYIKoZIzj0DAQcDQgAEnm0VeTmcc8FmcoyQLJmX3wapX0af8MwCDiCk8+9sQL+n
+    s513tuCzu70t1hx2z7XlIaipKC05ILP04LX8wTbr66NmMGQwDgYDVR0PAQH/BAQD
+    AgEGMBIGA1UdEwEB/wQIMAYBAf8CAQAwHQYDVR0OBBYEFGCeqalKePtSYYs+lPfl
+    ivLwIpZ5MB8GA1UdIwQYMBaAFBejZGzZLZ+Ti12AGkBnOxADp9tXMAoGCCqGSM49
+    BAMCA0gAMEUCIEJrqsiPyTqKO7EaoRtv0tvED2YmsYK/0w79mcntc1KYAiEAv/E0
+    rKnpFwgQYJ2oke5fktyTQid40tBamRauLqWhFOI=
+    -----END CERTIFICATE-----
+  '';
+in
+{
+  options.lh.security.customca = {
+    enable = mkEnableOption "Enable LH-Trust custom certificate authorities";
+
+    includeRootCA = mkOption {
+      type = types.bool;
+      default = true;
+      description = "Include LH-Trust Root CA certificate";
+    };
+
+    includeIntermediateCA = mkOption {
+      type = types.bool;
+      default = true;
+      description = "Include LH-Trust Intermediate CA certificate";
+    };
+
+    extraCertificates = mkOption {
+      type = types.listOf types.path;
+      default = [ ];
+      description = "Additional custom certificate files to trust";
+    };
+  };
+
+  config = mkIf cfg.enable {
+    security.pki.certificateFiles =
+      (optional cfg.includeRootCA lhTrustRootCA) ++
+      (optional cfg.includeIntermediateCA lhTrustIntermediateCA) ++
+      cfg.extraCertificates;
+  };
+}

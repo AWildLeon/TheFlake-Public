@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="$lang$" xml:lang="$lang$">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>$title$</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { padding: 2rem; }
+    .option-name { font-family: monospace; font-weight: bold; color: #0066cc; }
+    .option-type { font-style: italic; color: #666; }
+    .option-default { background-color: #f8f9fa; padding: 0.25rem; border-radius: 0.25rem; }
+    pre { background-color: #f8f9fa; padding: 1rem; border-radius: 0.375rem; }
+    h1, h2, h3, h4, h5, h6 { margin-top: 2rem; margin-bottom: 1rem; }
+    .toc ul { list-style-type: none; }
+    .search-container { margin-bottom: 2rem; }
+    .search-box { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 0.375rem; }
+    .search-results { margin-top: 1rem; }
+    .highlight { background-color: yellow; }
+    .sidebar { position: sticky; top: 2rem; max-height: calc(100vh - 4rem); overflow-y: auto; }
+    .option-section { margin-bottom: 2rem; padding: 1rem; border: 1px solid #e9ecef; border-radius: 0.375rem; }
+    .filter-buttons { margin-bottom: 1rem; }
+    .filter-btn { margin-right: 0.5rem; margin-bottom: 0.5rem; }
+    .stats-badge { margin-left: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-3">
+        <nav class="sidebar">
+          <h4>Search & Navigation</h4>
+          <div class="search-container">
+            <input type="text" id="searchBox" class="search-box" placeholder="Search options..." />
+            <div class="filter-buttons mt-2">
+              <button class="btn btn-sm btn-outline-primary filter-btn" data-filter="all">All</button>
+              <button class="btn btn-sm btn-outline-secondary filter-btn" data-filter="security">Security</button>
+              <button class="btn btn-sm btn-outline-success filter-btn" data-filter="services">Services</button>
+              <button class="btn btn-sm btn-outline-info filter-btn" data-filter="packages">Packages</button>
+              <button class="btn btn-sm btn-outline-warning filter-btn" data-filter="cosmetic">Cosmetic</button>
+            </div>
+            <div class="mt-2">
+              <span class="badge bg-primary stats-badge">87 Total Options</span>
+              <span class="badge bg-success stats-badge">86 Custom Options</span>
+            </div>
+          </div>
+          <div id="TOC" class="toc">
+            <h5>Table of Contents</h5>
+            $toc$
+          </div>
+        </nav>
+      </div>
+      <div class="col-md-9">
+        <header class="mb-4">
+          <h1 class="display-4">$title$</h1>
+          <p class="lead">Complete documentation for ALL NixOS configuration options in this repository.</p>
+          <div class="alert alert-success">
+            <h5>Complete Documentation Coverage</h5>
+            <p>This documentation includes options from ALL modules in the repository:</p>
+            <ul>
+              <li><strong>Security &amp; Hardening:</strong> Custom CA, SSH, kernel hardening, memory allocation, process security, service hardening, guest agent hardening</li>
+              <li><strong>Services:</strong> Boot server, Nginx, recursive DNS, Traefik reverse proxy, Gitea, Grafana, Glance dashboard, Nameserver</li>
+              <li><strong>Packages:</strong> Custom iPXE builds with embedded scripts</li>
+              <li><strong>Utilities:</strong> Service jails, network configuration, MOTD customization</li>
+            </ul>
+            <p><small><em>All default values are displayed as raw Nix expressions without evaluation.</em></small></p>
+          </div>
+          <hr>
+        </header>
+        <main id="content">
+          $body$
+        </main>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var searchBox = document.getElementById('searchBox');
+      var content = document.getElementById('content');
+      
+      searchBox.addEventListener('input', function(e) {
+        var searchTerm = e.target.value.toLowerCase();
+        var sections = content.querySelectorAll('h2, h3, h4, p, code, pre');
+        
+        sections.forEach(function(section) {
+          var text = section.textContent.toLowerCase();
+          if (searchTerm === '' || text.indexOf(searchTerm) !== -1) {
+            section.style.display = '';
+          } else {
+            section.style.display = 'none';
+          }
+        });
+      });
+      
+      var filterBtns = document.querySelectorAll('.filter-btn');
+      filterBtns.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var category = this.getAttribute('data-filter');
+          var headings = content.querySelectorAll('h2, h3');
+          
+          headings.forEach(function(heading) {
+            var text = heading.textContent.toLowerCase();
+            var show = false;
+            
+            if (category === 'all') {
+              show = true;
+            } else if (category === 'security' && (text.indexOf('security') !== -1 || text.indexOf('ssh') !== -1 || text.indexOf('ca') !== -1 || text.indexOf('hardening') !== -1)) {
+              show = true;
+            } else if (category === 'services' && text.indexOf('services') !== -1) {
+              show = true;
+            } else if (category === 'packages' && text.indexOf('packages') !== -1) {
+              show = true;
+            } else if (category === 'cosmetic' && text.indexOf('cosmetic') !== -1) {
+              show = true;
+            }
+            
+            heading.style.display = show ? '' : 'none';
+            var next = heading.nextElementSibling;
+            while (next && !next.matches('h2, h3')) {
+              next.style.display = show ? '' : 'none';
+              next = next.nextElementSibling;
+            }
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>
