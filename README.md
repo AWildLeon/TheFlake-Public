@@ -87,5 +87,3 @@ This configuration relies on several excellent Nix community projects:
 ## License
 
 Copyright (c) 2025 Leon Hubrich. All rights reserved. See `license.md` for details.
-
-# Test update Mo 29. Sep 09:54:16 CEST 2025
