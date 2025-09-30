@@ -102,6 +102,7 @@
               "/var/lib/glance/assets";
           socket-path = "/run/glance/webui.sock";
           socket-mode = "0660";
+          proxied = true;
         };
       } // config.lh.services.glance.settings;
     };
