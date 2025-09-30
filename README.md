@@ -17,3 +17,7 @@ Production-ready NixOS modules, roles, and security configurations.
 ```
 
 Contains modules for core system config, services (nginx, traefik, databases), security hardening, and desktop environments.
+
+---
+
+Btw You can add a Machines folder and it would work like inside of my private flake (Autodiscovery).
