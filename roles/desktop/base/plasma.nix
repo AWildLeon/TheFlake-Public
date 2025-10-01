@@ -1,6 +1,4 @@
-{ pkgs, plasma-manager, ... }:
-{
-
+{ pkgs, plasma-manager, ... }: {
 
   environment.plasma6.excludePackages = with pkgs; [
     kdePackages.elisa
@@ -20,18 +18,15 @@
     desktopManager.plasma6.enable = true;
     xserver = {
       enable = true;
-      xkb = {
-        layout = "de";
-      };
+      xkb = { layout = "de"; };
     };
   };
 
-  services.resolved = {
-    enable = true;
-  };
+  services.resolved = { enable = true; };
 
   programs = {
     dconf.enable = true;
+    thunderbird.enable = true;
     kdeconnect.enable = true;
   };
   xdg.portal = {
