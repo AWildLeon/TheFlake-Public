@@ -124,7 +124,7 @@
               disko impermanence home-manager nixos-unstable agenix arion
               nixos-facter-modules nixos-generators stylix spicetify-nix
               nix4vscode plasma-manager glance-ical-events copyparty;
-            inherit self;
+            inherit inputs self;
             ts = builtins.toString
               (self.lastModified or (inputs.nixpkgs.lastModified or 0));
             pkgsUnstable = import inputs.nixos-unstable {

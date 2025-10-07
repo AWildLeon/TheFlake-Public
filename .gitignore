@@ -6,7 +6,7 @@ secrets/*
 !secrets/**/
 !secrets/**/*.age
 !secrets/*.age
-!secrets/secrets.nix
+!secrets/*.nix
 !*.age
 
 # Nix / build artifacts
