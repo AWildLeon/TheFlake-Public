@@ -1,0 +1,41 @@
+- name: Proxmox API Template Postprocessor
+  hosts: all
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: Configure Cloud-Init
+      community.proxmox.proxmox_kvm:
+        api_host: "{{ proxmox_url | urlsplit('hostname') }}"
+        api_user: "{{ proxmox_username.split('!')[0] }}"
+        api_token_id: "{{ proxmox_username.split('!')[1] }}"
+        api_token_secret: "{{ proxmox_token }}"
+        node: "{{ proxmox_node }}"
+        vmid: "{{ proxmox_vm_id }}"
+        ciuser: "root"
+        cores: 1
+        memory: 2048
+        onboot: true
+        update: true
+        validate_certs: false
+
+    - name: Update Disk config to enable replication
+      community.proxmox.proxmox_disk:
+        api_host: "{{ proxmox_url | urlsplit('hostname') }}"
+        api_user: "{{ proxmox_username.split('!')[0] }}"
+        api_token_id: "{{ proxmox_username.split('!')[1] }}"
+        api_token_secret: "{{ proxmox_token }}"
+        vmid: "{{ proxmox_vm_id }}"
+        disk: virtio0
+        replicate: true
+        state: present
+
+    - name: Cleanup Devices (net0, ide2)
+      community.proxmox.proxmox_kvm:
+        api_host: "{{ proxmox_url | urlsplit('hostname') }}"
+        api_user: "{{ proxmox_username.split('!')[0] }}"
+        api_token_id: "{{ proxmox_username.split('!')[1] }}"
+        api_token_secret: "{{ proxmox_token }}"
+        node: "{{ proxmox_node }}"
+        vmid: "{{ proxmox_vm_id }}"
+        delete: "net0,ide2"
+        validate_certs: false

@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+# Regenerate WireGuard keypair and optional PSK for a connection between two hosts.
+# Keys are encrypted in-place with agenix. Private key material never appears in output.
+#
+# Usage:
+#   wg-rekey --a-dir <dir> --a-privkey <secret> \
+#            --b-dir <dir> --b-privkey <secret> \
+#            [--a-psk <secret>] [--b-psk <secret>]
+#
+# --a-dir / --b-dir   : path to host directory containing secrets.nix (relative to GIT_ROOT)
+# --a-privkey         : filename inside secrets/ for side A's private key  (e.g. wg_p_home_private_key.age)
+# --b-privkey         : filename inside secrets/ for side B's private key
+# --a-psk             : filename inside secrets/ for the PSK on side A     (optional)
+# --b-psk             : filename inside secrets/ for the PSK on side B     (optional)
+#                       A and B psk files receive the same plaintext value.
+#
+# Output:
+#   Prints the two public keys so you can update peer PublicKey fields in your nix configs.
+#
+# Requirements: wg, agenix (in PATH), secrets.nix must already list the target files.
+
+set -euo pipefail
+
+GIT_ROOT=$(git -C "$(dirname "$0")" rev-parse --show-toplevel)
+export GIT_ROOT
+
+usage() {
+  sed -n '3,18p' "$0" | sed 's/^# \?//'
+  exit 1
+}
+
+A_DIR="" A_PRIVKEY="" A_PSK=""
+B_DIR="" B_PRIVKEY="" B_PSK=""
+
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --a-dir)      A_DIR=$2;      shift 2 ;;
+    --a-privkey)  A_PRIVKEY=$2;  shift 2 ;;
+    --a-psk)      A_PSK=$2;      shift 2 ;;
+    --b-dir)      B_DIR=$2;      shift 2 ;;
+    --b-privkey)  B_PRIVKEY=$2;  shift 2 ;;
+    --b-psk)      B_PSK=$2;      shift 2 ;;
+    -h|--help)    usage ;;
+    *) echo "Unknown argument: $1"; usage ;;
+  esac
+done
+
+[[ -n $A_DIR && -n $A_PRIVKEY && -n $B_DIR && -n $B_PRIVKEY ]] || usage
+
+encrypt() {
+  local dir=$1 secret=$2
+  (cd "$GIT_ROOT/$dir" && agenix -e "secrets/$secret")
+}
+
+# Side A private key
+_key=$(wg genkey)
+printf '%s' "$_key" | encrypt "$A_DIR" "$A_PRIVKEY"
+A_PUBKEY=$(printf '%s' "$_key" | wg pubkey)
+_key=""
+
+# Side B private key
+_key=$(wg genkey)
+printf '%s' "$_key" | encrypt "$B_DIR" "$B_PRIVKEY"
+B_PUBKEY=$(printf '%s' "$_key" | wg pubkey)
+_key=""
+
+# PSK (same value, encrypted separately for each side)
+if [[ -n $A_PSK || -n $B_PSK ]]; then
+  _psk=$(wg genpsk)
+  [[ -n $A_PSK ]] && printf '%s' "$_psk" | encrypt "$A_DIR" "$A_PSK"
+  [[ -n $B_PSK ]] && printf '%s' "$_psk" | encrypt "$B_DIR" "$B_PSK"
+  _psk=""
+fi
+
+echo ""
+echo "=== Public keys — update peer PublicKey fields with these ==="
+echo "A ($A_DIR) pubkey: $A_PUBKEY"
+echo "B ($B_DIR) pubkey: $B_PUBKEY"

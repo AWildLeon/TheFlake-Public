@@ -1,0 +1,109 @@
+{
+  "nix.formatterPath": "treefmt",
+  // Use treefmt as the default formatter for supported file types
+  "[nix]": {
+    "editor.defaultFormatter": "jnoortheen.nix-ide",
+    "editor.formatOnSave": true,
+    "editor.formatOnType": false,
+    "editor.formatOnPaste": false
+  },
+  "[markdown]": {
+    "editor.formatOnSave": true
+  },
+  "[json]": {
+    "editor.formatOnSave": true
+  },
+  "[yaml]": {
+    "editor.formatOnSave": true
+  },
+  "[shellscript]": {
+    "editor.formatOnSave": true
+  },
+  // Enable format on save globally
+  "editor.formatOnSave": false,
+  "editor.formatOnSaveMode": "file",
+  // Configure file associations
+  "files.associations": {
+    "*.nix": "nix",
+    "flake.lock": "json"
+  },
+  // Error lens for better error display
+  "errorLens.enabledDiagnosticLevels": ["error", "warning", "info"],
+  "errorLens.enabled": true,
+  // Terminal integration
+  "terminal.integrated.defaultProfile.linux": "zsh",
+  "terminal.integrated.profiles.linux": {
+    "zsh": {
+      "path": "zsh"
+    }
+  },
+  // Git integration improvements
+  "git.enableSmartCommit": true,
+  "git.confirmSync": false,
+  // Exclude patterns to reduce noise
+  "files.exclude": {
+    "**/result": true,
+    "**/result-*": true,
+    "**/.direnv": true
+  },
+  // Search exclude patterns
+  "search.exclude": {
+    "**/result": true,
+    "**/result-*": true,
+    "**/.direnv": true,
+    "**/flake.lock": true
+  },
+  // Workspace trust
+  "security.workspace.trust.untrustedFiles": "open",
+  // Problem matchers for better error reporting
+  "problems.defaultViewMode": "tree",
+  "problems.showCurrentInStatus": true,
+  "nixEnvSelector.nixFile": "${workspaceFolder}/flake.nix",
+  "nixEnvSelector.useFlakes": true,
+  // nixd LSP: resolve nixpkgs/options through the flake input rather than the
+  // absent <nixpkgs> channel, avoiding "file 'nixpkgs' not found in search path"
+  // eval errors and the resulting SIGPIPE crashes.
+  "nix.enableLanguageServer": true,
+  "nix.serverPath": "nixd",
+  "nix.serverSettings": {
+    "nixd": {
+      "nixpkgs": {
+        "expr": "import (builtins.getFlake (toString ./.)).inputs.nixpkgs { }"
+      },
+      "formatting": {
+        "command": ["nixfmt"]
+      }
+    }
+  },
+  "ansible.python.interpreterPath": "/usr/bin/env python",
+  "chat.mcp.serverSampling": {
+    "nix-configs/.vscode/mcp.json: nixos": {
+      "allowedModels": [
+        "copilot/auto",
+        "copilotcli/claude-haiku-4.5",
+        "claude-code/claude-haiku-4.5",
+        "copilot/claude-haiku-4.5",
+        "copilot/gemini-2.5-pro",
+        "copilot/gemini-3-flash-preview",
+        "copilot/gemini-3.1-pro-preview",
+        "copilotcli/gpt-4.1",
+        "copilot/gpt-4.1",
+        "copilot/gpt-4o",
+        "copilotcli/gpt-5-mini",
+        "copilot/gpt-5-mini",
+        "copilotcli/gpt-5.2",
+        "copilot/gpt-5.2",
+        "copilotcli/gpt-5.2-codex",
+        "copilot/gpt-5.2-codex",
+        "copilotcli/gpt-5.3-codex",
+        "copilot/gpt-5.3-codex",
+        "copilotcli/gpt-5.4-mini",
+        "copilot/gpt-5.4-mini",
+        "copilot/grok-code-fast-1",
+        "copilot/oswe-vscode-prime"
+      ]
+    }
+  },
+  "todo-tree.ripgrep.ripgrep": "rg",
+  "nix.hiddenLanguageServerErrors": ["textDocument/formatting"]
+}

@@ -1,0 +1,10 @@
+# .proxmoxignore — fields the sync tool will never write, for any VM.
+#
+# Format: vm_name_glob|field_glob   (fnmatch, last match wins)
+#         prefix ! to re-include a previously ignored pattern
+#
+# Examples:
+#   *|description          ignore description on every VM
+#   *|tags                 ignore tags on every VM (manage via PVE UI)
+#   !important-vm|tags     ...but DO sync tags for this specific VM
+*|description

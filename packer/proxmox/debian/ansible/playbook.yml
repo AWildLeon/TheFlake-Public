@@ -1,0 +1,83 @@
+---
+# playbook.yml
+- name: "Provision Image"
+  hosts: default
+  tasks:
+    - name: Disable root password
+      ansible.builtin.user:
+        name: root
+        password_lock: true
+
+    - name: Update APT
+      ansible.builtin.apt:
+        update_cache: true
+        upgrade: dist
+
+    - name: Install Cloudinit
+      ansible.builtin.apt:
+        package:
+          - cloud-init
+          - qemu-guest-agent
+        state: present
+
+    - name: Cleanup Network Config
+      ansible.builtin.copy:
+        content: |
+          source /etc/network/interfaces.d/*
+        dest: /etc/network/interfaces
+        mode: "0644"
+
+    - name: Proxmox Cloudinit Config
+      ansible.builtin.copy:
+        content: |
+          datasource_list: [ConfigDrive, NoCloud]
+        dest: /etc/cloud/cloud.cfg.d/99-proxmox.cfg
+        mode: "0644"
+
+    - name: Cleanup SSH Keys
+      ansible.builtin.file:
+        path: /etc/ssh/ssh_host_*
+        state: absent
+
+    - name: Install CURL
+      ansible.builtin.apt:
+        package:
+          - curl
+        state: present
+
+    - name: Download Shell config
+      ansible.builtin.get_url:
+        url: https://zsh.onlh.de/zsh.sh
+        dest: /tmp/zsh.sh
+        mode: "0755"
+
+    - name: Run Shell config
+      ansible.builtin.shell:
+        cmd: bash /tmp/zsh.sh
+      tags:
+        - skip_ansible_lint
+
+    - name: Download SSHCA installer
+      ansible.builtin.get_url:
+        url: https://sshca.onlh.de/install.sh
+        dest: /tmp/ca.sh
+        mode: "0755"
+
+    - name: Run sshca installer
+      ansible.builtin.shell:
+        cmd: bash /tmp/ca.sh
+      tags:
+        - skip_ansible_lint
+
+    - name: SSH disable password
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "^PasswordAuthentication"
+        line: "PasswordAuthentication no"
+        state: present
+
+    - name: Install resolvconf
+      ansible.builtin.apt:
+        package:
+          - resolvconf
+        state: present

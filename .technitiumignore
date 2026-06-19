@@ -1,0 +1,5 @@
+# Ignore dynamic home.dyn A records in all zones
+*|home.dyn.*|A|*
+
+# Ignore ACME TXT challenges everywhere
+*|_acme-challenge.*|TXT|*

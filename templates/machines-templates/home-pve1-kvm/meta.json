@@ -1,0 +1,8 @@
+{
+  "deployment": {
+    "sshPort": 22,
+    "sshUser": "root",
+    "tags": [],
+    "targetHost": null
+  }
+}

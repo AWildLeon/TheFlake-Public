@@ -1,0 +1,21 @@
+# Per-host metadata. Lives at hosts/<path>/meta.nix and feeds the inventory
+# generator (tools/inventory/generate.py -> parts/inventory.nix).
+#
+# meta.nix may be a plain attrset, or — as here — a function receiving the
+# helper lib `lib` (see tools/inventory/helpers.nix). Deployment defaults
+# (sshUser = "root", sshPort = 22) are merged automatically; only declare what
+# differs.
+{ lib, ... }:
+lib.mkServer {
+  # targetHost may be an IP, an FQDN, or composed via lib.ip4 / lib.ip6, e.g.
+  #   targetHost = lib.ip4 "10.0.10" 3;   # => "10.0.10.3"
+  targetHost = "10.0.0.1";
+
+  # Colmena tags for `colmena apply --on @tag`.
+  tags = [ "host-a" "server" ];
+
+  # Deploy dependencies — each entry is another host key (e.g.
+  # "server.home.dns") or a tag (e.g. "localdns"). Consumed later to build a
+  # dependency tree for ordered apply+reboot.
+  dependencies = [ "server.home.dns" "localdns" ];
+}

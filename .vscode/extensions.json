@@ -1,0 +1,26 @@
+{
+  "recommendations": [
+    // Nix language support
+    "jnoortheen.nix-ide",
+    "arrterian.nix-env-selector",
+    // Direnv support for automatic environment loading
+    "mkhl.direnv",
+    // Prettier for JSON/YAML/Markdown formatting
+    "esbenp.prettier-vscode",
+    // Shell script support and formatting
+    "timonwong.shellcheck",
+    "foxundermoon.shell-format",
+    // Git integration
+    "eamodio.gitlens",
+    // Better error display
+    "usernamehw.errorlens",
+    // YAML support
+    "redhat.vscode-yaml",
+    // Icons for file explorer
+    "vscode-icons-team.vscode-icons",
+    // Markdown support
+    "yzhang.markdown-all-in-one",
+    // Todo highlighting
+    "gruntfuggly.todo-tree"
+  ]
+}
