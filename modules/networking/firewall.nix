@@ -576,10 +576,65 @@ let
     ${lib.optionalString cfg.flushRuleset "${pkgs.nftables}/sbin/nft flush ruleset"}
     ${pkgs.nftables}/sbin/nft -j -f ${rulesFile}
   '';
+
+  analysisModel = {
+    enabled = cfg.enable;
+    framework = "lh.firewall/notnft";
+    limitations = [
+      "Rules are exported after notnft generation; source locations and original option declarations are not preserved."
+      "The packet simulator models a conservative subset of nftables expressions."
+      "NAT, VRF connmark steering, policy routing, rate limits, MSS mangling, fib, maps/vmaps, and raw escape-hatch semantics are only partially modeled."
+    ];
+    inherit (cfg) conntrack;
+    inherit (cfg) inputPolicy;
+    inherit (cfg) forwardPolicy;
+    interfaces = lib.attrNames cfg.interfaces;
+    interfaceRuleCounts = lib.mapAttrs (_: icfg: {
+      common = builtins.length icfg.rules;
+      inputOnly = builtins.length icfg.inputOnlyRules;
+      forwardOnly = builtins.length icfg.forwardOnlyRules;
+    }) cfg.interfaces;
+    nat = {
+      outbound = cfg.nat.outbound;
+      portForwards = cfg.nat.portForwards;
+      oneToOne = cfg.nat.oneToOne;
+      vrfZones = cfg.nat.vrfZones;
+      hasRawExtraRules =
+        cfg.nat.extraPreroutingRules != [ ]
+        || cfg.nat.extraPostroutingRules != [ ]
+        || cfg.nat.extraPostroutingRulesV6 != [ ]
+        || cfg.nat.extraOutputRules != [ ];
+    };
+    pbr = {
+      marks = cfg.pbr.marks;
+      hasRawExtraRules = cfg.pbr.extraPreroutingRules != [ ] || cfg.pbr.extraOutputRules != [ ];
+    };
+    rawRulesetOverride = cfg.ruleset != null;
+    nftables = activeRuleset;
+  };
 in
 {
   options.lh.firewall = {
     enable = lib.mkEnableOption "notnft JSON firewall";
+
+    analysis = lib.mkOption {
+      type = lib.types.attrs;
+      readOnly = true;
+      default = analysisModel;
+      description = ''
+        Machine-readable firewall analysis model for lhflake packet.
+        This is evaluated data and does not include secret material.
+      '';
+    };
+
+    analysisJson = lib.mkOption {
+      type = lib.types.str;
+      readOnly = true;
+      default = builtins.toJSON analysisModel;
+      description = ''
+        JSON encoding of lh.firewall.analysis for lhflake packet.
+      '';
+    };
 
     conntrack = lib.mkOption {
       type = lib.types.enum [

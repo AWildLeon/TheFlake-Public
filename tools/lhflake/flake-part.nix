@@ -10,6 +10,7 @@
         "rekey-recursive"
         "discover-ssh-keys"
         "dependency-graph"
+        "packet"
         "help"
       ];
 
@@ -51,10 +52,11 @@
             echo "  rekey-recursive        Recursively rekey host-local agenix secrets"
             echo "  discover-ssh-keys      Discover host ed25519 SSH keys into meta.nix"
             echo "  dependency-graph       Visualize deployment dependencies"
+            echo "  packet                 Simulate/debug lh.firewall packet verdicts"
           }
 
           case "$subcommand" in
-            technitium-zone-sync|proxmox-sync)
+            technitium-zone-sync|proxmox-sync|packet)
               exec nix run "''${FLAKE_ROOT}#''${subcommand}" -- "$@"
               ;;
             wg-rekey)
@@ -104,6 +106,9 @@
             dependency-graph)
               COMPREPLY=($(compgen -W "--format --output --host --reverse --no-validate --help" -- "$cur"))
               ;;
+            packet)
+              COMPREPLY=($(compgen -W "--path --from --to --src --dst --proto --sport --dport --ct-state --ct-mark --mark --tcp-flags --json --examples --list-zones --list-interfaces --dump-model --help" -- "$cur"))
+              ;;
           esac
         }
         complete -F _lhflake lhflake
@@ -129,6 +134,7 @@
                 'rekey-recursive:Recursively rekey host-local agenix secrets'
                 'discover-ssh-keys:Discover host ed25519 SSH keys into meta.nix'
                 'dependency-graph:Visualize deployment dependencies'
+                'packet:Simulate/debug lh.firewall packet verdicts'
                 'help:Show usage'
               )
               _describe 'subcommand' cmds
@@ -168,6 +174,26 @@
                     '--host[Limit to host and dependencies]:host' \
                     '--reverse[With --host, show dependents instead of dependencies]' \
                     '--no-validate[Do not fail on missing refs/cycles]'
+                  ;;
+                packet)
+                  _arguments \
+                    '--path[Packet path]:path:(forward input)' \
+                    '--from[Ingress interface/zone]:interface' \
+                    '--to[Egress interface/zone]:interface' \
+                    '--src[Source IP/CIDR]:address' \
+                    '--dst[Destination IP/CIDR]:address' \
+                    '--proto[Protocol]:proto:(tcp udp icmp icmpv6 ipv6-icmp any)' \
+                    '--sport[Source port]:port' \
+                    '--dport[Destination port]:port' \
+                    '--ct-state[Conntrack state]:state:(new established related invalid)' \
+                    '--ct-mark[Conntrack mark]:mark' \
+                    '--mark[Packet meta/fw mark]:mark' \
+                    '--tcp-flags[TCP flags, comma or space separated]:flags' \
+                    '--json[Emit JSON]' \
+                    '--examples[Show examples]' \
+                    '--list-zones[List modeled VRF/NAT zones]' \
+                    '--list-interfaces[List known interfaces/zones]' \
+                    '--dump-model[Dump evaluated firewall model]'
                   ;;
               esac
               ;;

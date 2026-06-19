@@ -160,6 +160,7 @@
           ./tools/dns/flake-part.nix
           ./tools/inventory/flake-part.nix
           ./tools/proxmox/flake-part.nix
+          ./tools/packet/flake-part.nix
           ./tools/lhflake/flake-part.nix
           ./tools/homemanager/flake-part.nix
           ./parts/inventory.nix

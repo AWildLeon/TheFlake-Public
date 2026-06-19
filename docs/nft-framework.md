@@ -4,6 +4,8 @@ The `lh.firewall` NixOS module is a structured notnft-based firewall framework f
 
 Upstream DSL reference: [docs/notnft.md](notnft.md)
 
+Debugging/simulation tool: [docs/packet-court.md](packet-court.md)
+
 ## Files
 
 | Path                              | Role                                                          |
