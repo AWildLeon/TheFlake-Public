@@ -72,6 +72,7 @@ in
         clearEnv = true;
         dieWithParent = true;
         network = true;
+        newSession = true;
 
         env = {
           HOME = sloth.homeDir;
